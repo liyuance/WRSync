@@ -10,13 +10,13 @@ import tools_rr
 import tools_wb
 
 #»À»À’À∫≈
-UserName_rr = "liyuance@yeah.net"
-Password_rr = "13969339056rr"
-UserID_rr = "744440491"
+UserName_rr = ""
+Password_rr = ""
+UserID_rr = ""
 #Œ¢≤©’À∫≈
-UserName_wb = "liyuance@yeah.net"
-Password_wb = "13969339056weibo"
-UserID_wb = "2982144922"
+UserName_wb = ""
+Password_wb = ""
+UserID_wb = ""
 
 Sess_rr = tools_rr.Login(UserName_rr,Password_rr,UserID_rr)
 Sess_wb = tools_wb.Login(UserName_wb,Password_wb,UserID_wb)
