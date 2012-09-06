@@ -1,21 +1,17 @@
 #!/usr/local/bin/python
-# encoding: gbk
+# encoding:gbk
 
 import os
 import sys
 import urllib
 import urllib2
 import cookielib
-import socket
-import httplib
 import re
 
 
 # 各种连接超时
 Timeout_Login   = 30
 Timeout_Request = 30
-Timeout_Socket  = 30
-Timeout_Curl  = 500
 Request_Retry = 30
 Post_Retry = 30
 
@@ -33,9 +29,6 @@ LoginPage = "http://3g.sina.com.cn/prog/wapsite/sso/login.php"
 ValidPage = "http://weibo.cn/%s/profile?vt=1&gsid=%s"
 SendPage = "http://weibo.cn/mblog/sendmblog?st=8ff8&vt=1&gsid=%s"
 StatusPage = "http://weibo.cn/%s/profile?vt=1&gsid=%s"
-
-
-socket.setdefaulttimeout(Timeout_Socket)
 
 class Login:
 	def __init__(self, username, password,userid):
@@ -55,9 +48,7 @@ class Login:
 		urllib2.install_opener(opener_header)
 		
 		# 设置Cookie
-		#self.cj = cookielib.CookieJar()
 		self.cj = cookielib.MozillaCookieJar()
-		#self.cj.save(".login.cookie")
 		opener_cookie = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj))
 		urllib2.install_opener(opener_cookie)
 
@@ -70,7 +61,6 @@ class Login:
 			print "Can't find vk info"
 			return False
 		vk = m.group(1)
-		print vk
 		password_field = "password_"+vk[0:vk.find("_")]
 
 		post = urllib.urlencode({
@@ -85,15 +75,11 @@ class Login:
 		if not url_ret:
 			return False
 		content = Request(url_ret,"content")
-		f = open("a.txt","w")
-		f.write(content)
-		f.close()
 		m = p_gsid.search(content)
 		if not m:
 			print "Can't find gsid info"
 			return False
 		self.gsid = m.group(1)
-		print self.gsid
 		# 验证访问一个用户信息页
 		req_p = urllib2.Request(ValidPage%(self.userid,self.gsid), headers={'User-Agent' : "Magic Browser"})
 		url = Request(req_p,"url")
@@ -106,8 +92,9 @@ class Login:
 		req_p = urllib2.Request(ValidPage%(self.userid,self.gsid), headers={'User-Agent' : "Magic Browser"})
 		content = Request(req_p,"content").decode("utf8","ignore").encode("gbk","ignore")
 		all_status = p_status.findall(content)
+		self.status = []
 		for item in all_status:
-			self.status.append((item[0],item[1]))
+			self.status.append((item[0].strip(),item[1].strip()))
 		return self.status
 		
 	def send(self,content):

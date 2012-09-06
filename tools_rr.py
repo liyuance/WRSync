@@ -1,21 +1,16 @@
 #!/usr/local/bin/python
-# encoding: gbk
+# encoding:gbk
 
 import os
 import sys
 import urllib
 import urllib2
 import cookielib
-import socket
-import httplib
 import re
-import time
 
 # 各种连接超时
 Timeout_Login   = 30
 Timeout_Request = 30
-Timeout_Socket  = 30
-Timeout_Curl  = 500
 Request_Retry = 30
 Post_Retry = 30
 
@@ -30,10 +25,8 @@ Header_Host = "3g.renren.com"
 #Page info
 LoginPage = "http://3g.renren.com/"
 ValidPage = "http://3g.renren.com/home.do"
-StatusPage = "http://3g.renren.com/status/getdoing.do?t=%s"
+StatusPage = "http://3g.renren.com/status/getdoing.do"
 HomePage = "http://3g.renren.com/home.do"
-
-socket.setdefaulttimeout(Timeout_Socket)
 
 class Login:
 	def __init__(self, username, password,userid):
@@ -79,19 +72,14 @@ class Login:
 			return False
 		self.sendURL = m.group(1)
 		self.rtk = m.group(2)
-		print "send URL:",self.sendURL
-		print "_rtk:",self.rtk
 		return True
 
 	def getStatus(self):
-		t = time.strftime("%H%M%S",time.localtime())
-		print t
-		#content = Request("www.baidu.com","content")
-		content = Request(StatusPage%t,"content")
+		content = Request(StatusPage,"content")
 		all_status = p_status.findall(content)
+		self.status=[]
 		for item in all_status:
-			self.status.append((item[0],item[1]))
-		self.cj.clear()
+			self.status.append((item[0].strip(),item[1].strip()))
 		return self.status
 		
 	def send(self,content):

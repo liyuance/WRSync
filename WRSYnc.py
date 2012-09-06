@@ -1,22 +1,26 @@
 #!/usr/local/bin/python
 # encoding:gbk
-
 import os
 import sys
 import urllib2
 import time
+import ConfigParser
 
-import tools_rr
 import tools_wb
+import tools_rr
 
-#人人账号
-UserName_rr = ""
-Password_rr = ""
-UserID_rr = ""
-#微博账号
-UserName_wb = ""
-Password_wb = ""
-UserID_wb = ""
+cf = ConfigParser.ConfigParser()
+cf.read("conf.ini")
+try:
+	UserName_rr = cf.get("renren","username")
+	Password_rr = cf.get("renren","password")
+	UserID_rr = cf.get("renren","userid")
+	UserName_wb = cf.get("weibo","username")
+	Password_wb = cf.get("weibo","password")
+	UserID_wb = cf.get("weibo","userid")
+except:
+	print "init configure file failed"
+	exit()
 
 Sess_rr = tools_rr.Login(UserName_rr,Password_rr,UserID_rr)
 Sess_wb = tools_wb.Login(UserName_wb,Password_wb,UserID_wb)
@@ -38,31 +42,27 @@ else:
 	print "login renren failed "
 	exit()
 	
-print "OK"
-
 #初始化最近的人人网状态
 last_rr_status = ""
 Status_rr = Sess_rr.getStatus()
 if len(Status_rr) > 0:
-	last_rr_status = Status_rr[0][0].strip()
+	last_rr_status = Status_rr[0][0]
 print "last renren status:",last_rr_status
-if Sess_wb.send(last_rr_status):
-	print "send status to weibo success"
-exit()
+
 #定时获取人人状态
 while(1):
 	Status_rr = Sess_rr.getStatus()
 	for item in Status_rr:
-		print item[0],"time",item[1]
-		if item[0].strip() == last_rr_status:
+		if item[0] == last_rr_status:
 			break
 		#将新状态发到微博上
-		if Sess_wb.send(item[0].strip()):
-			print "send status to weibo success"
+		if Sess_wb.send(item[0]):
+			print "send %s to weibo success"%item[0]
 		else:
-			print "send status to weibo failed"
+			print "send %s to weibo failed"%item[0]
 	if len(Status_rr) > 0:
-		last_rr_status = Status_rr[0][0].strip()
+		last_rr_status = Status_rr[0][0]
+		print "last renren status:",last_rr_status
 	#睡眠5秒钟
 	time.sleep(5)
 	
